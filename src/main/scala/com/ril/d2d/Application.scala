@@ -1,15 +1,14 @@
 package com.ril.d2d
 
-import akka.actor.{ ActorRef, ActorSystem }
+import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.ril.d2d.actor.WorkOrderRegistryActor
-import com.ril.d2d.route.WorkOrderRoutes
+import com.ril.d2d.workorder.{WorkOrderRegistryActor, WorkOrderRoutes}
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ Await, ExecutionContext, Future }
-import scala.util.{ Failure, Success }
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 object Application extends App with WorkOrderRoutes {
 

@@ -1,11 +1,10 @@
-package com.ril.d2d.route
+package com.ril.d2d.workorder
 
 import akka.actor.ActorRef
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.ril.d2d.actor.{ WorkOrderRegistryActor, WorkOrders }
 import org.scalatest.concurrent.ScalaFutures
-import org.scalatest.{ Matchers, WordSpec }
+import org.scalatest.{Matchers, WordSpec}
 
 class WorkOrderRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
   with WorkOrderRoutes {
