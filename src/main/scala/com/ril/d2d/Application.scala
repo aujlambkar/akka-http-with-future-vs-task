@@ -1,14 +1,20 @@
 package com.ril.d2d
 
-import akka.actor.{ActorRef, ActorSystem}
+import java.util.Properties
+
+import akka.actor.{ ActorRef, ActorSystem }
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.ril.d2d.workorder.{WorkOrderRegistryActor, WorkOrderRoutes}
+import com.ril.d2d.kafka.{ KafkaConsumerActor, KafkaProducerActor }
+import com.ril.d2d.workorder.{ WorkOrderRegistryActor, WorkOrderRoutes }
+import org.apache.kafka.clients.consumer.{ ConsumerConfig, KafkaConsumer }
+import org.apache.kafka.common.TopicPartition
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{Await, ExecutionContext, Future}
-import scala.util.{Failure, Success}
+import scala.concurrent.{ Await, ExecutionContext, Future }
+import scala.util.{ Failure, Success }
+import scala.collection.JavaConversions._
 
 object Application extends App with WorkOrderRoutes {
 
@@ -16,7 +22,11 @@ object Application extends App with WorkOrderRoutes {
   implicit val materializer: ActorMaterializer = ActorMaterializer()
   implicit val executionContext: ExecutionContext = system.dispatcher
 
-  val workOrderRegistryActor: ActorRef = system.actorOf(WorkOrderRegistryActor.props, "workOrderRegistryActor")
+  private val broker = "100.96.8.53:9092"
+
+  val kafkaProducerActor: ActorRef = system.actorOf(KafkaProducerActor.props(broker, "request"), "kafkaProducerActor")
+  val kafkaConsumerActor: ActorRef = system.actorOf(KafkaConsumerActor.props(broker, "response", "1"), "kafkaConsumerActor")
+  val workOrderRegistryActor: ActorRef = system.actorOf(WorkOrderRegistryActor.props(kafkaProducerActor, kafkaConsumerActor), "workOrderRegistryActor")
 
   lazy val routes: Route = workOrderRoutes
 

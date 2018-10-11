@@ -14,12 +14,12 @@ import scala.collection.JavaConversions._
 class LearnKafkaSpec extends WordSpec with Matchers {
 
   "Kafka" should {
-    val brokers = "100.96.4.108:9092"
-    val topic = "test"
+    val brokers = "100.96.8.53:9092"
+    val topic = "request"
 
     "produce message" in {
 
-      produceMessage(brokers, topic)
+      produceMessage(brokers, topic, "Test message 123")
 
       1 should be(1)
     }
@@ -28,7 +28,7 @@ class LearnKafkaSpec extends WordSpec with Matchers {
       val props = createConsumerConfig(brokers)
       val consumer = new KafkaConsumer[String, String](props)
 
-      val partition = new TopicPartition(topic, 0)
+      val partition = new TopicPartition("request", 0)
 
       consumer.assign(Seq(partition))
 
@@ -37,21 +37,20 @@ class LearnKafkaSpec extends WordSpec with Matchers {
 
       consumer.seek(partition, offset)
 
-      produceMessage(brokers, topic)
+      produceMessage(brokers, "request", "Test message 123")
       Thread.sleep(500)
 
-      val consumerRecordsPerPartition = consumer.poll(Duration.ofMillis(1000L))
+      val consumerRecords = consumer.poll(Duration.ofMillis(1000L))
       consumer.commitSync()
 
-      val firstRecord = consumerRecordsPerPartition.records(partition).head
+      val firstRecord = consumerRecords.records(partition).head
 
-      firstRecord.key() should be("any key")
       firstRecord.value() should be("Test message 123")
     }
   }
 
 
-  def produceMessage(brokers: String, topic: String) {
+  def produceMessage(brokers: String, topic: String, message: String) {
 
     val props = new Properties()
     props.put("bootstrap.servers", brokers)
@@ -59,9 +58,9 @@ class LearnKafkaSpec extends WordSpec with Matchers {
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
 
-    val producer = new KafkaProducer[String, String](props)
+    val producer: KafkaProducer[String, String] = new KafkaProducer[String, String](props)
 
-    val data: ProducerRecord[String, String] = new ProducerRecord[String, String](topic, "any key", "Test message 123")
+    val data: ProducerRecord[String, String] = new ProducerRecord[String, String](topic, message)
 
     println("################### Started Message sent ##############")
     producer.send(data)
