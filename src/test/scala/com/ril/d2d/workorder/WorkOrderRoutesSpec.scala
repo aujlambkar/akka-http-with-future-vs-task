@@ -1,28 +1,26 @@
 package com.ril.d2d.workorder
 
-import java.util.Properties
-
 import akka.actor.ActorRef
 import akka.http.scaladsl.model._
 import akka.http.scaladsl.testkit.ScalatestRouteTest
-import com.ril.d2d.kafka.{KafkaConsumerActor, KafkaProducerActor}
-import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
-import org.apache.kafka.common.TopicPartition
+import com.ril.d2d.kafka.KafkaConsumerActor.StartPolling
+import com.ril.d2d.kafka.{KafkaConsumerActor, KafkaProducerActor, ResponseHandlerActor}
 import org.scalatest.concurrent.ScalaFutures
 import org.scalatest.{Matchers, WordSpec}
-
-import scala.collection.JavaConversions._
 
 class WorkOrderRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
   with WorkOrderRoutes {
 
   private val broker = "100.96.8.53:9092"
 
+  val responseHandleActor: ActorRef = system.actorOf(ResponseHandlerActor.props, "responseHandlerActor")
+  val kafkaConsumerActor: ActorRef = system.actorOf(KafkaConsumerActor.props(broker, "response", "1", responseHandleActor))
   val kafkaProducerActor: ActorRef = system.actorOf(KafkaProducerActor.props(broker, "request"))
-  val kafkaConsumerActor: ActorRef = system.actorOf(KafkaConsumerActor.props(broker, "response", "1"))
+
+  kafkaConsumerActor ! StartPolling
 
   override val workOrderRegistryActor: ActorRef =
-    system.actorOf(WorkOrderRegistryActor.props(kafkaProducerActor, kafkaConsumerActor), "workOrderRegistry")
+    system.actorOf(WorkOrderRegistryActor.props(kafkaProducerActor, responseHandleActor), "workOrderRegistry")
 
   lazy val routes = workOrderRoutes
 

@@ -1,20 +1,16 @@
 package com.ril.d2d
 
-import java.util.Properties
-
-import akka.actor.{ ActorRef, ActorSystem }
+import akka.actor.{ActorRef, ActorSystem}
 import akka.http.scaladsl.Http
 import akka.http.scaladsl.server.Route
 import akka.stream.ActorMaterializer
-import com.ril.d2d.kafka.{ KafkaConsumerActor, KafkaProducerActor }
-import com.ril.d2d.workorder.{ WorkOrderRegistryActor, WorkOrderRoutes }
-import org.apache.kafka.clients.consumer.{ ConsumerConfig, KafkaConsumer }
-import org.apache.kafka.common.TopicPartition
+import com.ril.d2d.kafka.KafkaConsumerActor.StartPolling
+import com.ril.d2d.kafka.{KafkaConsumerActor, KafkaProducerActor, ResponseHandlerActor}
+import com.ril.d2d.workorder.{WorkOrderRegistryActor, WorkOrderRoutes}
 
 import scala.concurrent.duration.Duration
-import scala.concurrent.{ Await, ExecutionContext, Future }
-import scala.util.{ Failure, Success }
-import scala.collection.JavaConversions._
+import scala.concurrent.{Await, ExecutionContext, Future}
+import scala.util.{Failure, Success}
 
 object Application extends App with WorkOrderRoutes {
 
@@ -24,9 +20,13 @@ object Application extends App with WorkOrderRoutes {
 
   private val broker = "100.96.8.53:9092"
 
+
+  val responseHandleActor: ActorRef = system.actorOf(ResponseHandlerActor.props, "responseHandlerActor")
+  val kafkaConsumerActor: ActorRef = system.actorOf(KafkaConsumerActor.props(broker, "response", "1", responseHandleActor), "kafkaConsumerActor")
   val kafkaProducerActor: ActorRef = system.actorOf(KafkaProducerActor.props(broker, "request"), "kafkaProducerActor")
-  val kafkaConsumerActor: ActorRef = system.actorOf(KafkaConsumerActor.props(broker, "response", "1"), "kafkaConsumerActor")
-  val workOrderRegistryActor: ActorRef = system.actorOf(WorkOrderRegistryActor.props(kafkaProducerActor, kafkaConsumerActor), "workOrderRegistryActor")
+  val workOrderRegistryActor: ActorRef = system.actorOf(WorkOrderRegistryActor.props(kafkaProducerActor, responseHandleActor), "workOrderRegistryActor")
+
+  kafkaConsumerActor ! StartPolling
 
   lazy val routes: Route = workOrderRoutes
 
