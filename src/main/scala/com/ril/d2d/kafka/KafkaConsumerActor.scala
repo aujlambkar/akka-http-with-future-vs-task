@@ -3,10 +3,10 @@ package com.ril.d2d.kafka
 import java.time.Duration
 import java.util.Properties
 
-import akka.actor.{Actor, ActorRef, Props}
+import akka.actor.{ Actor, ActorRef, Props }
 import com.ril.d2d.kafka.KafkaConsumerActor.StartPolling
 import com.ril.d2d.kafka.ResponseHandlerActor.HandleResponse
-import org.apache.kafka.clients.consumer.{ConsumerConfig, KafkaConsumer}
+import org.apache.kafka.clients.consumer.{ ConsumerConfig, KafkaConsumer }
 import org.apache.kafka.common.TopicPartition
 import spray.json._
 
@@ -19,7 +19,7 @@ object KafkaConsumerActor {
   final object StartPolling
 }
 
-class KafkaConsumerActor(broker: String, topic: String, group: String, responseHandler: ActorRef) extends Actor with KafkaJsonSupport{
+class KafkaConsumerActor(broker: String, topic: String, group: String, responseHandler: ActorRef) extends Actor with KafkaJsonSupport {
 
   override def receive: Receive = {
     case StartPolling => pollRecord
@@ -28,11 +28,11 @@ class KafkaConsumerActor(broker: String, topic: String, group: String, responseH
   def pollRecord() = {
     val kafkaConsumer = new KafkaConsumer[String, String](consumerConfig)
     kafkaConsumer.subscribe(Seq(topic))
-    while(true) {
+    sys.addShutdownHook(kafkaConsumer.close())
+    while (true) {
       val consumerRecords = kafkaConsumer.poll(Duration.ofMillis(1000L))
       val partition = new TopicPartition(topic, 0)
       val records = consumerRecords.records(partition)
-      println(" $$$$$ KafkaConsumerActor received event :" + records.length)
       records.forEach(record => {
         val event = record.value().parseJson.convertTo[Event]
         println(" $$$$$ KafkaConsumerActor received event :" + event)

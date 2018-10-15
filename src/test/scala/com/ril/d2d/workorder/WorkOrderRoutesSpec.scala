@@ -11,7 +11,7 @@ import org.scalatest.{Matchers, WordSpec}
 class WorkOrderRoutesSpec extends WordSpec with Matchers with ScalaFutures with ScalatestRouteTest
   with WorkOrderRoutes {
 
-  private val broker = "100.96.8.53:9092"
+  private val broker = "192.168.1.34:9092"
 
   val responseHandleActor: ActorRef = system.actorOf(ResponseHandlerActor.props, "responseHandlerActor")
   val kafkaConsumerActor: ActorRef = system.actorOf(KafkaConsumerActor.props(broker, "response", "1", responseHandleActor))
