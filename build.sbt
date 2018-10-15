@@ -1,5 +1,6 @@
 lazy val akkaHttpVersion = "10.1.4"
 lazy val akkaVersion    = "2.5.16"
+lazy val remoteNexusRepo = "10.154.3.140:8123/"
 
 lazy val root = (project in file(".")).
   settings(
@@ -26,7 +27,7 @@ lazy val root = (project in file(".")).
 mainClass in Compile := Some("com.ril.d2d.Application")
 dockerBaseImage := "frolvlad/alpine-oraclejdk8"
 dockerExposedPorts := Seq(7001)
-packageName in Docker := "d2d-activity-discovery"
+packageName in Docker := remoteNexusRepo + "d2d/activity-discovery"
 version in Docker := "latest"
 
 enablePlugins(JavaAppPackaging)
