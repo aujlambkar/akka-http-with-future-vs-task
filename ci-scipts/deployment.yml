@@ -1,0 +1,65 @@
+---
+apiVersion: v1
+kind: Secret
+type: kubernetes.io/dockerconfigjson
+metadata:
+  name: regcred
+  selfLink: /api/v1/namespaces/tools/secrets/regcred
+data:
+  .dockerconfigjson: eyJhdXRocyI6eyIxMC4xNTQuMy4xNDA6ODEyMyI6eyJ1c2VybmFtZSI6IkQyRCIsInBhc3N3b3JkIjoiVGVzdEAxMjM0IiwiYXV0aCI6IlJESkVPbFJsYzNSQU1USXpOQT09In19fQ==
+---
+apiVersion: v1
+kind: Namespace
+metadata:
+  name: d2d
+---
+apiVersion: extensions/v1beta1
+kind: Deployment
+metadata:
+  name: activity-discovery
+  namespace: d2d
+spec:
+  replicas: 1
+  template:
+    metadata:
+      labels:
+        app: activity-discovery
+    spec:
+      containers:
+      - name: activity-discovery
+        image: 10.154.3.140:8123/d2d/activity-discovery:latest
+        ports:
+        - name: http-port
+          containerPort: 7001
+      imagePullSecrets:
+      - name: regcred
+---
+apiVersion: v1
+kind: Service
+metadata:
+  name: activity-discovery
+  namespace: d2d
+spec:
+  type: ClusterIP
+  ports:
+  - port: 80
+    targetPort: 7001
+  selector:
+    app: activity-discovery
+---
+apiVersion: extensions/v1beta1
+kind: Ingress
+metadata:
+  name: activity-discovery-ingress
+  namespace: d2d
+  annotations:
+    nginx.ingress.kubernetes.io/rewrite-target: /
+spec:
+  rules:
+    - host: a6315c17dce1311e8bb4202596c4be73-877114937.ap-south-1.elb.amazonaws.com
+    http:
+      paths:
+      - path: /d2d
+        backend:
+          serviceName: activity-discovery
+          servicePort: 80
