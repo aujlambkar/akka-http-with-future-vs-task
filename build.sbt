@@ -30,6 +30,13 @@ dockerExposedPorts := Seq(7001)
 packageName in Docker := remoteNexusRepo + "d2d/activity-discovery"
 version in Docker := "latest"
 
+resourceGenerators in Compile += Def.task {
+  val file = new File("build.version")
+  val contents = "image=" + remoteNexusRepo + "d2d/activity-discovery:latest"
+  IO.write(file, contents)
+  Seq(file)
+}.taskValue
+
 enablePlugins(JavaAppPackaging)
 enablePlugins(DockerPlugin)
 enablePlugins(AshScriptPlugin)
