@@ -1,3 +1,3 @@
 #!/usr/bin/env bash
 
-./sbt docker:publishLocal
+./sbt package
