@@ -47,7 +47,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-    - host: a6315c17dce1311e8bb4202596c4be73-877114937.ap-south-1.elb.amazonaws.com
+  - host: a6315c17dce1311e8bb4202596c4be73-877114937.ap-south-1.elb.amazonaws.com
     http:
       paths:
       - path: /d2d
