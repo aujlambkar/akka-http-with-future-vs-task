@@ -25,7 +25,7 @@ trait WorkOrderRoutes extends WorkOrderJsonSupport {
 
   def workOrderRegistryActor: ActorRef
 
-  implicit lazy val timeout = Timeout(5.seconds)
+  implicit lazy val timeout = Timeout(20.seconds)
 
   lazy val workOrderRoutes: Route =
     pathPrefix("workorders") {

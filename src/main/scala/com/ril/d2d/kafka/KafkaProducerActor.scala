@@ -9,30 +9,29 @@ import spray.json._
 
 object KafkaProducerActor {
 
-  def props(broker: String, topic: String) = Props(new KafkaProducerActor(broker, topic))
+  def props(producer: KafkaProducer[String, String], topic: String) = Props(new KafkaProducerActor(producer, topic))
 
   final case class Produce(event: Event)
-}
 
-class KafkaProducerActor(broker: String, topic: String) extends Actor with KafkaJsonSupport {
-
-  override def receive: Receive = {
-    case Produce(event) => publishEvent(event, broker, topic)
-  }
-
-  def publishEvent(event: Event, broker: String, topic: String): Unit = {
+  def producerConf(broker: String) = {
     val props = new Properties()
     props.put("bootstrap.servers", broker)
     props.put("client.id", "activity.discovery")
     props.put("key.serializer", "org.apache.kafka.common.serialization.StringSerializer")
     props.put("value.serializer", "org.apache.kafka.common.serialization.StringSerializer")
+    props
+  }
+}
 
-    val producer = new KafkaProducer[String, String](props)
+class KafkaProducerActor(producer: KafkaProducer[String, String], topic: String) extends Actor with KafkaJsonSupport {
 
+  override def receive: Receive = {
+    case Produce(event) => publishEvent(event, producer, topic)
+  }
+
+  def publishEvent(event: Event, producer: KafkaProducer[String, String], topic: String): Unit = {
     val data: ProducerRecord[String, String] = new ProducerRecord[String, String](topic, event.toJson.compactPrint)
-    println(" $$$$$ KafkaProducerActor producing event :" + data)
     producer.send(data)
-    println(" $$$$$ KafkaProducerActor producing event : DONE")
   }
 
 }

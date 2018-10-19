@@ -28,16 +28,14 @@ class KafkaConsumerActor(broker: String, topic: String, group: String, responseH
   def pollRecord() = {
     val kafkaConsumer = new KafkaConsumer[String, String](consumerConfig)
     kafkaConsumer.subscribe(Seq(topic))
+
     sys.addShutdownHook(kafkaConsumer.close())
+
     while (true) {
       val consumerRecords = kafkaConsumer.poll(Duration.ofMillis(1000L))
       val partition = new TopicPartition(topic, 0)
       val records = consumerRecords.records(partition)
-      records.forEach(record => {
-        val event = record.value().parseJson.convertTo[Event]
-        println(" $$$$$ KafkaConsumerActor received event :" + event)
-        responseHandler ! HandleResponse(event)
-      })
+      records.forEach(record => responseHandler ! HandleResponse(record.value().parseJson.convertTo[Event]))
     }
   }
 

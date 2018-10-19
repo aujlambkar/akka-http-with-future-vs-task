@@ -10,8 +10,11 @@ object ResponseHandlerActor {
   def props = Props[ResponseHandlerActor]
 
   final case class RegisterResponseHandler(eventName: String, correlationId: String, actorRef: ActorRef)
+
   final case class ResponseCorrelation(eventName: String, correlationId: String, actorRef: ActorRef)
+
   final case class HandleResponse(event: Event)
+
 }
 
 class ResponseHandlerActor extends Actor with WorkOrderJsonSupport {
@@ -26,7 +29,7 @@ class ResponseHandlerActor extends Actor with WorkOrderJsonSupport {
 
   def handleRecord(event: Event) = {
     responseHandlerRegistry
-      .find(handler => handler.eventName.equals(event.name) && handler.correlationId.equals(event.correlationId))
+      .find(handler => handler.correlationId.equals(event.correlationId))
       .foreach(handler => {
         responseHandlerRegistry -= handler
         handler.actorRef ! event.payload.map(_.parseJson.convertTo[WorkOrders]).getOrElse(WorkOrders(Seq()))

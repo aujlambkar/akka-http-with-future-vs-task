@@ -8,6 +8,7 @@ import com.ril.d2d.kafka.KafkaConsumerActor.StartPolling
 import com.ril.d2d.kafka.{ KafkaConsumerActor, KafkaProducerActor, ResponseHandlerActor }
 import com.ril.d2d.workorder.{ WorkOrderRegistryActor, WorkOrderRoutes }
 import com.typesafe.config.ConfigFactory
+import org.apache.kafka.clients.producer.KafkaProducer
 
 import scala.concurrent.duration.Duration
 import scala.concurrent.{ Await, ExecutionContext, Future }
@@ -24,9 +25,11 @@ object Application extends App with WorkOrderRoutes {
   private val hostIP = config.getString("host.ip")
   private val hostPort = config.getInt("host.port")
 
+  val producer = new KafkaProducer[String, String](KafkaProducerActor.producerConf(kafkaBootstrapServers))
+
   val responseHandleActor: ActorRef = system.actorOf(ResponseHandlerActor.props, "responseHandlerActor")
   val kafkaConsumerActor: ActorRef = system.actorOf(KafkaConsumerActor.props(kafkaBootstrapServers, "response", "1", responseHandleActor), "kafkaConsumerActor")
-  val kafkaProducerActor: ActorRef = system.actorOf(KafkaProducerActor.props(kafkaBootstrapServers, "request"), "kafkaProducerActor")
+  val kafkaProducerActor: ActorRef = system.actorOf(KafkaProducerActor.props(producer, "request"), "kafkaProducerActor")
   val workOrderRegistryActor: ActorRef = system.actorOf(WorkOrderRegistryActor.props(kafkaProducerActor, responseHandleActor), "workOrderRegistryActor")
 
   kafkaConsumerActor ! StartPolling
