@@ -18,7 +18,7 @@ spec:
     spec:
       containers:
       - name: activity-discovery
-        image: 10.154.3.140:8123/d2d/activity-discovery:latest
+        image: #IMAGE
         ports:
         - name: http-port
           containerPort: 7001
@@ -47,7 +47,7 @@ metadata:
     nginx.ingress.kubernetes.io/rewrite-target: /
 spec:
   rules:
-  - host: a6315c17dce1311e8bb4202596c4be73-877114937.ap-south-1.elb.amazonaws.com
+  - host: ad773fd80d17811e8bbc302714c5074c-205578388.ap-south-1.elb.amazonaws.com
     http:
       paths:
       - path: /d2d

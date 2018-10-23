@@ -1,6 +1,7 @@
 lazy val akkaHttpVersion = "10.1.4"
 lazy val akkaVersion    = "2.5.16"
 lazy val remoteNexusRepo = "10.154.3.140:8123/"
+val pkgVersion = "1.0.0"
 
 lazy val root = (project in file(".")).
   settings(
@@ -32,11 +33,11 @@ mainClass in Compile := Some("com.ril.d2d.Application")
 dockerBaseImage := "frolvlad/alpine-oraclejdk8"
 dockerExposedPorts := Seq(7001)
 packageName in Docker := remoteNexusRepo + "d2d/activity-discovery"
-version in Docker := "latest"
+version in Docker := pkgVersion
 
 resourceGenerators in Compile += Def.task {
   val file = new File("build.version")
-  val contents = "image=" + remoteNexusRepo + "d2d/activity-discovery:latest"
+  val contents = "image=" + remoteNexusRepo + "d2d/activity-discovery:" + pkgVersion
   IO.write(file, contents)
   Seq(file)
 }.taskValue
