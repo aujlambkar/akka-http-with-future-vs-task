@@ -22,11 +22,11 @@ spec:
           ports:
           - name: http-port
             containerPort: 7001
-          imagePullSecrets:
-          - name: regcred
           env:
           - name: KAFKA_BOOTSTRAP_SERVERS
             value: "kafka:9092"
+      imagePullSecrets:
+      - name: regcred
 ---
 apiVersion: v1
 kind: Service
