@@ -17,6 +17,9 @@ spec:
         app: activity-discovery
     spec:
       containers:
+      - env:
+        - name: KAFKA_BOOTSTRAP_SERVERS
+          value: "kafka:9092"
       - name: activity-discovery
         image: #IMAGE
         ports:

@@ -1,7 +1,7 @@
 lazy val akkaHttpVersion = "10.1.4"
 lazy val akkaVersion    = "2.5.16"
 lazy val remoteNexusRepo = "10.154.3.140:8123/"
-val pkgVersion = "1.0.0"
+val pkgVersion = "2.0.0"
 
 lazy val root = (project in file(".")).
   settings(
