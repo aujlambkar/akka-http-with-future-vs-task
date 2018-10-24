@@ -17,16 +17,16 @@ spec:
         app: activity-discovery
     spec:
       containers:
-      - env:
-        - name: KAFKA_BOOTSTRAP_SERVERS
-          value: "kafka:9092"
-      - name: activity-discovery
-        image: #IMAGE
-        ports:
-        - name: http-port
-          containerPort: 7001
-      imagePullSecrets:
-      - name: regcred
+        - name: activity-discovery
+          image: #IMAGE
+          ports:
+          - name: http-port
+            containerPort: 7001
+          imagePullSecrets:
+          - name: regcred
+          env:
+            name: KAFKA_BOOTSTRAP_SERVERS
+            value: "kafka:9092"
 ---
 apiVersion: v1
 kind: Service
