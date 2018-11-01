@@ -9,18 +9,13 @@ lazy val root = (project in file(".")).
       organization    := "com.ril",
       scalaVersion    := "2.12.6"
     )),
-    name := "activity-discovery",
+    name := "akka-http-with-fututre-vs-task",
     libraryDependencies ++= Seq(
       "com.typesafe.akka" %% "akka-http"            % akkaHttpVersion,
-      "com.typesafe.akka" %% "akka-http-spray-json" % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-http-xml"        % akkaHttpVersion,
       "com.typesafe.akka" %% "akka-stream"          % akkaVersion,
       "javax.ws.rs"       %  "javax.ws.rs-api"      % "2.1" artifacts( Artifact("javax.ws.rs-api", "jar", "jar")),
-      "org.apache.kafka"  %   "kafka-clients"       % "2.0.0",
-      "org.apache.kafka"  % "kafka-streams"         % "2.0.0",
-      "org.apache.kafka"  %% "kafka-streams-scala"  % "2.0.0",
-      "org.slf4j"         %   "slf4j-log4j12"       % "1.7.25",
-
+      "io.monix"          %% "monix" % "2.3.3",
       "com.typesafe.akka" %% "akka-http-testkit"    % akkaHttpVersion % Test,
       "com.typesafe.akka" %% "akka-testkit"         % akkaVersion     % Test,
       "com.typesafe.akka" %% "akka-stream-testkit"  % akkaVersion     % Test,
